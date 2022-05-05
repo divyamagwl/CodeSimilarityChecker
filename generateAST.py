@@ -53,6 +53,13 @@ class generateAST:
             elif isinstance(value, ast.AST):
                 self.getLevels(value, level=level+1)
         
+    def getChildren(self, node):
+        parent = ast.dump(node)
+        children = []
+        for child_node in ast.iter_child_nodes(node):
+            children.append(ast.dump(child_node))
+        return parent, children
+
 if __name__ == '__main__':
     filename = sys.argv[1]
 
