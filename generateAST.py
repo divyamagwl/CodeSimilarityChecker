@@ -99,4 +99,12 @@ if __name__ == '__main__':
     ifCount = generator.countExprType(generatedASTtree, ast.If)
     funcCount = generator.countExprType(generatedASTtree, ast.FunctionDef)
 
+    generator.getLevels(generatedASTtree)
+    generator.getParentChildRelations(generatedASTtree)
+    
+    pc_0 = list(zip(generator.level_0_parents, generator.level_0_children))
+    pc_1 = list(zip(generator.level_1_parents, generator.level_1_children))
+    pc_0.sort
+    pc_1.sort
+    
     print(loopsCount, ifCount, funcCount)
