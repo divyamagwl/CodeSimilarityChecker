@@ -2,18 +2,18 @@ import ast
 import sys
 from astor import to_source
 
-
 class RewriteVariableName(ast.NodeTransformer):
     def visit_Name(self, node):
         if(isinstance(node, ast.Name)):
-            result = ast.Name(id='var')
-            return ast.copy_location(result, node)
+            value = ast.Name(id='var')
+            return ast.copy_location(value, node)
         return node
+
 class generateAST:
-    def __init__(self):
-        self.level_0 = []
-        self.level_1 = []
-        self.level_2 = []
+    def __init__(self, maxLevel=3):
+        self.maxLevel = maxLevel
+        self.levels = [[] for _ in range(maxLevel)]
+
         self.level_0_parents = []
         self.level_0_children = []
         self.level_1_parents = []
@@ -42,20 +42,17 @@ class generateAST:
         return count
 
     def getLevels(self, node, level=0):
-        if level==0:
-            self.level_0.append(ast.dump(node))
-        elif level==1:
-            self.level_1.append(ast.dump(node))
-        elif level==2:
-            self.level_2.append(ast.dump(node))        
+        if(level < self.maxLevel):
+            self.levels[level].append(ast.dump(node))
 
         for _, value in ast.iter_fields(node):
-            if isinstance(value, list):
+            if(isinstance(value, ast.AST)):
+                value = [value]
+
+            if(isinstance(value, list)):
                 for item in value:
                     if isinstance(item, ast.AST):
                         self.getLevels(item, level=level+1)
-            elif isinstance(value, ast.AST):
-                self.getLevels(value, level=level+1)
         
     def getChildren(self, node):
         parent = ast.dump(node)
