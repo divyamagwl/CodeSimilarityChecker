@@ -9,16 +9,11 @@ class RewriteVariableName(ast.NodeTransformer):
             return ast.copy_location(value, node)
         return node
 
-class generateAST:
+class GenerateAST:
     def __init__(self, maxLevel=3):
         self.maxLevel = maxLevel
         self.levels = [[] for _ in range(maxLevel)]
         self.levelParentChild = [[] for _ in range(maxLevel - 1)]
-    
-    def readFile(self, filename):
-        with open(filename) as f:
-            contents = f.read()
-            return contents
 
     def createAst(self, sourceCode):
         inputASTtree = ast.parse(sourceCode)
@@ -47,7 +42,7 @@ class generateAST:
 
             if(isinstance(value, list)):
                 for item in value:
-                    if isinstance(item, ast.AST):
+                    if(isinstance(item, ast.AST)):
                         self.getLevels(item, level=level+1)
         
     def getChildren(self, node):
@@ -59,12 +54,12 @@ class generateAST:
 
     def getParentChildRelations(self, root, level=0):
         for _, value in ast.iter_fields(root):
-            if isinstance(value, ast.AST):
+            if(isinstance(value, ast.AST)):
                 value = [value]
 
-            if isinstance(value, list):
+            if(isinstance(value, list)):
                 for item in value:
-                    if isinstance(item, ast.AST):
+                    if(isinstance(item, ast.AST)):
                         p, c = self.getChildren(item)
 
                         if(level < self.maxLevel - 1):
@@ -72,14 +67,18 @@ class generateAST:
 
                         self.getParentChildRelations(item, level=level+1)
 
+def readFile(self, filename):
+    with open(filename) as f:
+        contents = f.read()
+        return contents
 
 
 if __name__ == '__main__':
     filename = sys.argv[1]
 
-    generator = generateAST()
+    generator = GenerateAST()
     
-    sourceCode = generator.readFile(filename)
+    sourceCode = readFile(filename)
     generatedASTtree = generator.createAst(sourceCode)
     
     loopsCount = generator.countExprType(generatedASTtree, (ast.For, ast.While))
