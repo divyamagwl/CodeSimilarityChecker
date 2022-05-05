@@ -13,11 +13,7 @@ class generateAST:
     def __init__(self, maxLevel=3):
         self.maxLevel = maxLevel
         self.levels = [[] for _ in range(maxLevel)]
-
-        self.level_0_parents = []
-        self.level_0_children = []
-        self.level_1_parents = []
-        self.level_1_children = []
+        self.levelParentChild = [[] for _ in range(maxLevel - 1)]
     
     def readFile(self, filename):
         with open(filename) as f:
@@ -63,26 +59,20 @@ class generateAST:
 
     def getParentChildRelations(self, root, level=0):
         for _, value in ast.iter_fields(root):
+            if isinstance(value, ast.AST):
+                value = [value]
+
             if isinstance(value, list):
                 for item in value:
                     if isinstance(item, ast.AST):
                         p, c = self.getChildren(item)
-                        if level == 0:
-                            self.level_0_parents.append(p)
-                            self.level_0_children.append(c)
-                        elif level == 1:
-                            self.level_1_parents.append(p)
-                            self.level_1_children.append(c)       
+
+                        if(level < self.maxLevel - 1):
+                            self.levelParentChild[level].append([p, c])
+
                         self.getParentChildRelations(item, level=level+1)
-            elif isinstance(value, ast.AST):
-                p, c = self.getChildren(value)
-                if level == 0:
-                    self.level_0_parents.append(p)
-                    self.level_0_children.append(c)
-                elif level == 1:
-                    self.level_1_parents.append(p)
-                    self.level_1_children.append(c)
-                self.getParentChildRelations(value, level=level+1)
+
+
 
 if __name__ == '__main__':
     filename = sys.argv[1]
@@ -97,11 +87,9 @@ if __name__ == '__main__':
     funcCount = generator.countExprType(generatedASTtree, ast.FunctionDef)
 
     generator.getLevels(generatedASTtree)
+
     generator.getParentChildRelations(generatedASTtree)
-    
-    pc_0 = list(zip(generator.level_0_parents, generator.level_0_children))
-    pc_1 = list(zip(generator.level_1_parents, generator.level_1_children))
-    pc_0.sort
-    pc_1.sort
-    
+    for i in range(generator.maxLevel - 1):
+        generator.levelParentChild[i].sort
+        
     print(loopsCount, ifCount, funcCount)
