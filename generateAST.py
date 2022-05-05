@@ -10,7 +10,11 @@ class RewriteVariableName(ast.NodeTransformer):
             return ast.copy_location(result, node)
         return node
 class generateAST:
-
+    def __init__(self):
+        self.level_0 = []
+        self.level_1 = []
+        self.level_2 = []
+    
     def readFile(self, filename):
         with open(filename) as f:
             contents = f.read()
@@ -33,7 +37,22 @@ class generateAST:
                 count += 1
         return count
 
+    def getLevels(self, node, level=0):
+        if level==0:
+            self.level_0.append(ast.dump(node))
+        elif level==1:
+            self.level_1.append(ast.dump(node))
+        elif level==2:
+            self.level_2.append(ast.dump(node))        
 
+        for _, value in ast.iter_fields(node):
+            if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, ast.AST):
+                        self.getLevels(item, level=level+1)
+            elif isinstance(value, ast.AST):
+                self.getLevels(value, level=level+1)
+        
 if __name__ == '__main__':
     filename = sys.argv[1]
 
