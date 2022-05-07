@@ -73,6 +73,102 @@ class AST:
 
                         self.getParentChildRelations(item, level=level+1)
 
+class Winnowing:
+    def __init__(self):
+        pass
+
+    def cosine_similarity(self, l1, l2):
+
+        vec1 = Counter(l1)
+        vec2 = Counter(l2)
+        
+        intersection = set(vec1.keys()) & set(vec2.keys())
+        
+        # print(intersection)
+        
+        numerator = sum([vec1[x] * vec2[x] for x in intersection])
+
+        sum1 = sum([vec1[x]**2 for x in vec1.keys()])
+        sum2 = sum([vec2[x]**2 for x in vec2.keys()])
+        denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+        if not denominator:
+            return 0.0
+
+        return float(numerator) / denominator
+
+    def get_min(self, get_key = lambda x: x):
+        def rightmost_minimum(l):
+            minimum = float('inf')
+            minimum_index = -1
+            pos = 0
+            
+            while(pos < len(l)):
+                if (get_key(l[pos]) < minimum):
+                    minimum = get_key(l[pos])
+                    minimum_index = pos
+                pos += 1
+            
+            return l[minimum_index]
+        return rightmost_minimum
+
+    def generate_kgrams(self, data, k):
+        for text in data :
+            token = nltk.word_tokenize(text)
+            kgrams = nltk.util.ngrams(token, k)
+            lst_kgrams = list(kgrams)
+            # print("Kgrams : ", lst_kgrams)
+            return lst_kgrams
+    
+    # only conversion to lowercase for now
+    def preprocess(self, document):
+        preprocessed_document = []
+        for item in document :
+            item = item.lower()
+            preprocessed_document.append(item) 
+        return preprocessed_document
+
+    # Have used the inbuilt hash function (Should try a self defined rolling hash function)
+    def winnowing(self, kgrams, k, t):
+        modified_min_func = self.get_min(lambda key_value: key_value[0])
+        
+        document_fingerprints = []
+        
+        # print(kgrams)
+        hash_table = [ (hash(kgrams[i]) , i)  for i in range(len(kgrams)) ]
+        # print(len(hash_table))
+        
+        window_length = t - k + 1
+        window_begin = 0
+        window_end = window_length
+        
+        minimum_hash = None
+
+        while (window_end < len(hash_table)):
+            window = hash_table[window_begin:window_end]
+            window_minimum = modified_min_func(window)
+            
+            if(minimum_hash != window_minimum):
+                # print(window_minimum)
+                document_fingerprints.append(window_minimum[0]) #not taking positions into consideration
+                minimum_hash = window_minimum
+
+            window_begin = window_begin + 1
+            window_end = window_end + 1
+
+        return document_fingerprints
+
+    def generate_fingerprints(self, file_name, k, t) :
+        data = []
+        f = open(file_name)
+        data.append(f.read())
+        
+        preprocessed_data = self.preprocess(data)
+        kgrams = self.generate_kgrams(preprocessed_data, k)
+        # print(len(kgrams))
+        document_fingerprints = self.winnowing(kgrams, k, t)
+        return document_fingerprints
+        
 def readFile(filename):
     with open(filename) as f:
         contents = f.read()
