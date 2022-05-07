@@ -7,9 +7,9 @@ A tool which can tell how similar two programs are and assigns a score to their 
     pip3 install -r requirements.txt
 
 # Run program
-    python3 ast_generator <file-path>
+    python3 generateAST.py <file-path>
 
 Example:
     
-    python3 ast_generator test/1.py
-    python3 ast_generator test/2.py
+    python3 generateAST.py test/1.py
+    python3 generateAST.py test/2.py

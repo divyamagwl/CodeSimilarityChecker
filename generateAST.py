@@ -1,7 +1,13 @@
 import ast
 import sys
 from astor import to_source
-
+import nltk
+import sys
+import math
+from collections import Counter
+from statistics import mean
+import sys
+import csv
 class RewriteVariableName(ast.NodeTransformer):
     def visit_Name(self, node):
         if(isinstance(node, ast.Name)):
@@ -9,7 +15,7 @@ class RewriteVariableName(ast.NodeTransformer):
             return ast.copy_location(value, node)
         return node
 
-class GenerateAST:
+class AST:
     def __init__(self, maxLevel=3):
         self.maxLevel = maxLevel
         self.levels = [[] for _ in range(maxLevel)]
@@ -67,28 +73,48 @@ class GenerateAST:
 
                         self.getParentChildRelations(item, level=level+1)
 
-def readFile(self, filename):
+def readFile(filename):
     with open(filename) as f:
         contents = f.read()
         return contents
 
 
 if __name__ == '__main__':
-    filename = sys.argv[1]
+    file1 = sys.argv[1]
+    file2 = sys.argv[2]
 
-    generator = GenerateAST()
+    ast1 = AST()
+    ast2 = AST()
+
+    sourceCode1 = readFile(file1)
+    sourceCode2 = readFile(file2)
+
+    generatedAST1 = ast1.createAst(sourceCode1)
+    generatedAST2 = ast2.createAst(sourceCode2)
+
+    ast1_counts = {
+        "loopsCount" : ast1.countExprType(generatedAST1, (ast.For, ast.While)),
+        "ifCount" : ast1.countExprType(generatedAST1, ast.If),
+        "funcCount" : ast1.countExprType(generatedAST1, ast.FunctionDef)
+    }
+   
+    ast2_counts = {
+        "loopsCount" : ast2.countExprType(generatedAST2, (ast.For, ast.While)),
+        "ifCount" : ast2.countExprType(generatedAST2, ast.If),
+        "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef)
+    }
+
+    ast1.getLevels(generatedAST1)
+    ast2.getLevels(generatedAST2)
+
+    ast1.getParentChildRelations(generatedAST1)
+    ast2.getParentChildRelations(generatedAST2)
     
-    sourceCode = readFile(filename)
-    generatedASTtree = generator.createAst(sourceCode)
+    for i in range(ast1.maxLevel - 1):
+        ast1.levelParentChild[i].sort
     
-    loopsCount = generator.countExprType(generatedASTtree, (ast.For, ast.While))
-    ifCount = generator.countExprType(generatedASTtree, ast.If)
-    funcCount = generator.countExprType(generatedASTtree, ast.FunctionDef)
+    for i in range(ast2.maxLevel - 1):
+        ast2.levelParentChild[i].sort
 
-    generator.getLevels(generatedASTtree)
-
-    generator.getParentChildRelations(generatedASTtree)
-    for i in range(generator.maxLevel - 1):
-        generator.levelParentChild[i].sort
-        
-    print(loopsCount, ifCount, funcCount)
+    print(ast1_counts["loopsCount"], ast1_counts["ifCount"], ast1_counts["funcCount"])
+    print(ast2_counts["loopsCount"], ast2_counts["ifCount"], ast2_counts["funcCount"])
