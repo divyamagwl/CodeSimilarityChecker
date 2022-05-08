@@ -75,6 +75,7 @@ class AST:
 
                         self.getParentChildRelations(item, level=level+1)
 
+# FGPT: Fignerprint
 class Winnowing:
     def __init__(self, ast1, ast2):
         self.program1 = ast1
@@ -115,21 +116,15 @@ class Winnowing:
             return l[minimum_index]
         return rightmost_minimum
 
-    def generate_kgrams(self, data, k):
-        for text in data :
-            token = nltk.word_tokenize(text)
-            kgrams = ngrams(token, k)
-            lst_kgrams = list(kgrams)
-            # print("Kgrams : ", lst_kgrams)
-            return lst_kgrams
+    def generateKgrams(self, text, k):
+        token = nltk.word_tokenize(text)
+        kgrams = ngrams(token, k)
+        return list(kgrams)
     
     # TODO: Add more preprocessing steps
-    def preprocess(self, document):
-        preprocessed_document = []
-        for item in document:
-            item = item.lower()
-            preprocessed_document.append(item) 
-        return preprocessed_document
+    def preprocess(self, text):
+        text = text.lower()
+        return text
 
     # Have used the inbuilt hash function (Should try a self defined rolling hash function)
     def winnowing(self, kgrams, k, t):
@@ -161,9 +156,9 @@ class Winnowing:
 
         return document_fingerprints
 
-    def generate_fingerprints(self, data, k, t):
-        preprocessed_data = self.preprocess(data)
-        kgrams = self.generate_kgrams(preprocessed_data, k)
+    def generateFGPT(self, data, k, t):
+        cleaned_data = self.preprocess(data)
+        kgrams = self.generateKgrams(cleaned_data, k)
         # print(len(kgrams))
         document_fingerprints = self.winnowing(kgrams, k, t)
         return document_fingerprints
@@ -237,18 +232,18 @@ if __name__ == '__main__':
     lev2s = []
 
     for i in range(1):
-        fingerprints1_0 = winnow.generate_fingerprints(ast1.levels[0], 13, 17)
-        fingerprints2_0 = winnow.generate_fingerprints(ast2.levels[0], 13, 17)
+        fingerprints1_0 = winnow.generateFGPT('\n'.join(ast1.levels[0]), 13, 17)
+        fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.levels[0]), 13, 17)
         cosine_similarity_lev0 = winnow.cosine_similarity(fingerprints1_0, fingerprints2_0)
         lev0s.append(cosine_similarity_lev0)
 
-        fingerprints1_1 = winnow.generate_fingerprints(['\n'.join(input_fp1_list1)], 13, 17)
-        fingerprints2_1 = winnow.generate_fingerprints(['\n'.join(input_fp2_list1)], 13, 17)
+        fingerprints1_1 = winnow.generateFGPT('\n'.join(input_fp1_list1), 13, 17)
+        fingerprints2_1 = winnow.generateFGPT('\n'.join(input_fp2_list1), 13, 17)
         cosine_similarity_lev1 = winnow.cosine_similarity(fingerprints1_1, fingerprints2_1)
         lev1s.append(cosine_similarity_lev1)
 
-        fingerprints1_2 = winnow.generate_fingerprints(['\n'.join(input_fp1_list2)], 13, 17)
-        fingerprints2_2 = winnow.generate_fingerprints(['\n'.join(input_fp2_list2)], 13, 17)
+        fingerprints1_2 = winnow.generateFGPT('\n'.join(input_fp1_list2), 13, 17)
+        fingerprints2_2 = winnow.generateFGPT('\n'.join(input_fp2_list2), 13, 17)
         cosine_similarity_lev2 = winnow.cosine_similarity(fingerprints1_2, fingerprints2_2)
         lev2s.append(cosine_similarity_lev2)
 
