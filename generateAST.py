@@ -258,15 +258,10 @@ if __name__ == '__main__':
 
 
     count_values = []
-    a = ast1_counts["loopsCount"]
-    b = ast2_counts["loopsCount"]
-    count_values.append([a,b])
-    a = ast1_counts["ifCount"]
-    b = ast2_counts["ifCount"]
-    count_values.append([a,b])
-    a = ast1_counts["funcCount"]
-    b = ast2_counts["funcCount"]
-    count_values.append([a,b])
+    for i in range(3):
+        a = list(ast1_counts.values())[i]
+        b = list(ast1_counts.values())[i]
+        count_values.append([a,b])
 
     normalization_score = 0
     t=0
