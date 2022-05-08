@@ -260,7 +260,7 @@ if __name__ == '__main__':
     count_values = []
     for i in range(3):
         a = list(ast1_counts.values())[i]
-        b = list(ast1_counts.values())[i]
+        b = list(ast2_counts.values())[i]
         count_values.append([a,b])
 
     normalization_score = 0
