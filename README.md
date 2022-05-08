@@ -3,8 +3,8 @@ A tool which can tell how similar two programs are and assigns a score to their 
 
 # Installation guide
     python3 -m venv venv
-    venv/bin/activate
-    pip3 install -r requirements.txt
+    . venv/bin/activate
+    pip3 install -r requirement.txt
 
 # Run program
     python3 generateAST.py <file-path>
