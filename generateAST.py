@@ -2,16 +2,18 @@ import ast
 import sys
 from astor import to_source
 import nltk
+from nltk.util import ngrams
 import sys
 import math
 from collections import Counter
 from statistics import mean
 import sys
 import csv
+
 class RewriteVariableName(ast.NodeTransformer):
     def visit_Name(self, node):
         if(isinstance(node, ast.Name)):
-            value = ast.Name(id='var')
+            value = ast.Name(id='x')
             return ast.copy_location(value, node)
         return node
 
@@ -74,8 +76,9 @@ class AST:
                         self.getParentChildRelations(item, level=level+1)
 
 class Winnowing:
-    def __init__(self):
-        pass
+    def __init__(self, ast1, ast2):
+        self.program1 = ast1
+        self.program2 = ast2
 
     def cosine_similarity(self, l1, l2):
 
@@ -115,15 +118,15 @@ class Winnowing:
     def generate_kgrams(self, data, k):
         for text in data :
             token = nltk.word_tokenize(text)
-            kgrams = nltk.util.ngrams(token, k)
+            kgrams = ngrams(token, k)
             lst_kgrams = list(kgrams)
             # print("Kgrams : ", lst_kgrams)
             return lst_kgrams
     
-    # only conversion to lowercase for now
+    # TODO: Add more preprocessing steps
     def preprocess(self, document):
         preprocessed_document = []
-        for item in document :
+        for item in document:
             item = item.lower()
             preprocessed_document.append(item) 
         return preprocessed_document
@@ -158,17 +161,14 @@ class Winnowing:
 
         return document_fingerprints
 
-    def generate_fingerprints(self, file_name, k, t) :
-        data = []
-        f = open(file_name)
-        data.append(f.read())
-        
+    def generate_fingerprints(self, data, k, t):
         preprocessed_data = self.preprocess(data)
         kgrams = self.generate_kgrams(preprocessed_data, k)
         # print(len(kgrams))
         document_fingerprints = self.winnowing(kgrams, k, t)
         return document_fingerprints
-        
+
+
 def readFile(filename):
     with open(filename) as f:
         contents = f.read()
@@ -214,3 +214,80 @@ if __name__ == '__main__':
 
     print(ast1_counts["loopsCount"], ast1_counts["ifCount"], ast1_counts["funcCount"])
     print(ast2_counts["loopsCount"], ast2_counts["ifCount"], ast2_counts["funcCount"])
+
+    input_fp1_list1 = []
+    input_fp1_list2 = []
+    for element in ast1.levelParentChild[0]:
+        input_fp1_list1.append(element[0])
+        for item in element[1]:
+            input_fp1_list2.append(item)
+
+    input_fp2_list1 = []
+    input_fp2_list2 = []
+    for element in ast2.levelParentChild[0]:
+        input_fp2_list1.append(element[0])
+        for item in element[1]:
+            input_fp2_list2.append(item)
+
+
+    winnow = Winnowing(ast1, ast2)
+
+    lev0s = []
+    lev1s = []
+    lev2s = []
+
+    for i in range(1):
+        fingerprints1_0 = winnow.generate_fingerprints(ast1.levels[0], 13, 17)
+        fingerprints2_0 = winnow.generate_fingerprints(ast2.levels[0], 13, 17)
+        cosine_similarity_lev0 = winnow.cosine_similarity(fingerprints1_0, fingerprints2_0)
+        lev0s.append(cosine_similarity_lev0)
+
+        fingerprints1_1 = winnow.generate_fingerprints(['\n'.join(input_fp1_list1)], 13, 17)
+        fingerprints2_1 = winnow.generate_fingerprints(['\n'.join(input_fp2_list1)], 13, 17)
+        cosine_similarity_lev1 = winnow.cosine_similarity(fingerprints1_1, fingerprints2_1)
+        lev1s.append(cosine_similarity_lev1)
+
+        fingerprints1_2 = winnow.generate_fingerprints(['\n'.join(input_fp1_list2)], 13, 17)
+        fingerprints2_2 = winnow.generate_fingerprints(['\n'.join(input_fp2_list2)], 13, 17)
+        cosine_similarity_lev2 = winnow.cosine_similarity(fingerprints1_2, fingerprints2_2)
+        lev2s.append(cosine_similarity_lev2)
+
+    final_cosine_similarity_lev0 = round(mean(lev0s), 2)
+    final_cosine_similarity_lev1 = round(mean(lev1s), 2)
+    final_cosine_similarity_lev2 = round(mean(lev2s), 2)
+
+
+    count_values = []
+    a = ast1_counts["loopsCount"]
+    b = ast2_counts["loopsCount"]
+    count_values.append([a,b])
+    a = ast1_counts["ifCount"]
+    b = ast2_counts["ifCount"]
+    count_values.append([a,b])
+    a = ast1_counts["funcCount"]
+    b = ast2_counts["funcCount"]
+    count_values.append([a,b])
+
+    normalization_score = 0
+    t=0
+    for c in range(3):
+        x=count_values[c][0]
+        y=count_values[c][1]
+        if(x + y)!=0:
+            t=t+1
+            if x>y:
+                s = 1-((x-y)/(x+y))
+            else:
+                s = 1-((y-x)/(x+y))    
+            normalization_score+=(10*s)
+
+    if t!=0:
+        normalization_score=normalization_score/(t*10)
+        total_similarity_score_win = ((0.5*final_cosine_similarity_lev0) + (0.3*final_cosine_similarity_lev1) + (0.2*final_cosine_similarity_lev2))
+        normalization_score = normalization_score
+        final_score = (total_similarity_score_win*60)+(normalization_score*40)
+        print("Similarity score = : \n", final_score)
+    else:
+        total_similarity_score_win = ((0.5*final_cosine_similarity_lev0) + (0.3*final_cosine_similarity_lev1) + (0.2*final_cosine_similarity_lev2))
+        final_score = (total_similarity_score_win*100)
+        print("Similarity score = : \n", final_score)
