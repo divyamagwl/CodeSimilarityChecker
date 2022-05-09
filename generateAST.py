@@ -22,7 +22,7 @@ class AST:
         inputASTtree = ast.parse(sourceCode)
         newASTTree = RewriteVariableName().visit(inputASTtree)
         
-         # rewriting variable names lead to loss of context
+        # rewriting variable names lead to loss of context
         # So, we againg change it to source code, parse it with context
         # (Load, Store, Del)
         # and dump it in form of string in self.level0
@@ -31,9 +31,7 @@ class AST:
         self.level0 = ast.dump(newASTTreeWithCtx)
         return newASTTreeWithCtx
 
-    
-    # counts the number of expressions of the given type in the 
-    # given AST
+    # counts the number of expressions of the given type in the given AST
     def countExprType(self, tree, exprType):
         count = 0
         for node in ast.walk(tree):

@@ -26,10 +26,10 @@ if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[2]
     code = sys.argv[3]
-    maxLevel = sys.argv[4]
+    maxLevel = int(sys.argv[4])
 
-    ast1 = AST()
-    ast2 = AST()
+    ast1 = AST(maxLevel)
+    ast2 = AST(maxLevel)
 
     sourceCode1 = readFile(file1)
     sourceCode2 = readFile(file2)
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         "controlFlow" : ast1.countExprType(generatedAST1, (ast.Break,ast.Continue)),
         "funcCount" : ast1.countExprType(generatedAST1, ast.FunctionDef),
         "arith" : ast1.countExprType(generatedAST1, (ast.UnaryOp,ast.BinOp)),
-        "excepCount":ast1.countExprType(generatedAST1, ast.ExceptHandler)    
+        "excepCount": ast1.countExprType(generatedAST1, ast.ExceptHandler)
     }
    
     ast2_counts = {
@@ -52,7 +52,7 @@ if __name__ == '__main__':
         "controlFlow" : ast2.countExprType(generatedAST2, (ast.Break,ast.Continue)),
         "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef),
         "arith" : ast2.countExprType(generatedAST2, (ast.UnaryOp,ast.BinOp)),
-        "excepCount":ast2.countExprType(generatedAST2, ast.ExceptHandler)
+        "excepCount": ast2.countExprType(generatedAST2, ast.ExceptHandler)
     }
 
     ast1.getParentChildRelations(generatedAST1)
@@ -73,7 +73,8 @@ if __name__ == '__main__':
     winnow = Winnowing(ast1, ast2)
     k, t = 13, 17
 
-    min_level = min(ast1.maxLevel, ast2.maxLevel) - 1
+    min_level = min(ast1.maxLevel, ast2.maxLevel) - 2
+    print(min_level)
 
     fingerprints1 = [] #level0, level 1,...,min_level parents, level min_level children
     fingerprints2 = []
@@ -91,14 +92,14 @@ if __name__ == '__main__':
 
     final_cosine_similarities = []
 
-    for i in range(min_level+2):
-        final_cosine_similarities.append(round(winnow.cosineSimilarity(fingerprints1[i], fingerprints2[i]), 2))
+    for i in range(len(fingerprints1)):
+        cosine_score = winnow.cosineSimilarity(fingerprints1[i], fingerprints2[i])
+        final_cosine_similarities.append(round(cosine_score, 2))
 
     ast1_constructs = list(ast1_counts.values())
     ast2_constructs = list(ast2_counts.values())
 
     norm_values = calculateNormScores(ast1_constructs, ast2_constructs, code)
-
     
     weight = 1/(min_level+2)
     total_similarity_score_win = sum([i*weight for i in final_cosine_similarities])
