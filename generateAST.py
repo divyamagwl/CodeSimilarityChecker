@@ -65,7 +65,7 @@ class AST:
                                 self.children[level].append(child)
                             self.levelParentChild[level].append([parent, children])
 
-                            self.getParentChildRelations(item, level=level+1)
+                        self.getParentChildRelations(item, level=level+1)
 
 # FGPT: Fignerprint
 class Winnowing:
@@ -128,6 +128,7 @@ class Winnowing:
     def generateFGPT(self, data, k, t):
         cleaned_data = self.preprocess(data)
         kgrams = self.generateKgrams(cleaned_data, k)
+        # print(len(kgrams))
         dataFGPT = self.winnowing(kgrams, k, t)
         return dataFGPT
 
@@ -200,26 +201,40 @@ if __name__ == '__main__':
 
     winnow = Winnowing(ast1, ast2)
     k, t = 13, 17
+    print(ast1.parents[1:] == ast1.children[:len(ast1.children)-1])
+    # print(''.join(ast1.parents[1]) == ''.join(ast1.children[0]))
+    # # ''.join(ast1.children[i]) == ''.join(ast1.parents[i+1])
+    print(len(ast1.parents),len(ast1.children))
+    # min_level = min(ast1.maxLevel,ast2.maxLevel)
+    min_level = 1
 
-    fingerprints1_0 = winnow.generateFGPT(''.join(ast1.level0), k, t)
-    fingerprints2_0 = winnow.generateFGPT(''.join(ast2.level0), k, t)
-    final_cosineSimilarity_lev0 = round(winnow.cosineSimilarity(fingerprints1_0, fingerprints2_0), 2)
+    fingerprints1 = [] #level0, level 1,...,min_level parents, level min_level children
+    fingerprints2 = []
+    
+    fingerprints1.append(winnow.generateFGPT(''.join(ast1.level0), k, t))
+    fingerprints2.append(winnow.generateFGPT(''.join(ast2.level0), k, t))
 
-    fingerprints1_1 = winnow.generateFGPT(''.join(ast1.parents[0]), k, t)
-    fingerprints2_1 = winnow.generateFGPT(''.join(ast2.parents[0]), k, t)
-    final_cosineSimilarity_lev1 = round(winnow.cosineSimilarity(fingerprints1_1, fingerprints2_1), 2)
+    for i in range(min_level):
+         fingerprints1.append(winnow.generateFGPT(''.join(ast1.parents[i]), k, t))
+         fingerprints2.append(winnow.generateFGPT(''.join(ast2.parents[i]), k, t))
+    
+    fingerprints1.append(winnow.generateFGPT(''.join(ast1.children[min_level-1]), k, t))
+    fingerprints2.append(winnow.generateFGPT(''.join(ast2.children[min_level-1]), k, t))
+    
 
-    fingerprints1_2 = winnow.generateFGPT(''.join(ast1.children[0]), k, t)
-    fingerprints2_2 = winnow.generateFGPT(''.join(ast2.children[0]), k, t)
-    final_cosineSimilarity_lev2 = round(winnow.cosineSimilarity(fingerprints1_2, fingerprints2_2), 2)
+    final_cosine_similarities = []
 
+    for i in range(min_level+2):
+        final_cosine_similarities.append(round(winnow.cosineSimilarity(fingerprints1[i], fingerprints2[i]), 2))
 
     ast1_constructs = list(ast1_counts.values())
     ast2_constructs = list(ast2_counts.values())
 
     norm_values = calculateNormScores(ast1_constructs, ast2_constructs, code)
 
-    total_similarity_score_win = ((0.5 * final_cosineSimilarity_lev0) + (0.3 * final_cosineSimilarity_lev1) + (0.2 * final_cosineSimilarity_lev2))
+    
+    weight = 1/(min_level+2)
+    total_similarity_score_win = sum([i*weight for i in final_cosine_similarities])
 
     alpha = 60
     if(len(norm_values) != 0):
@@ -227,5 +242,4 @@ if __name__ == '__main__':
         final_score = (total_similarity_score_win * alpha) + (final_norm_score * (100 - alpha))
     else:
         final_score = (total_similarity_score_win * 100)
-
     print("Similarity score = ", final_score)
