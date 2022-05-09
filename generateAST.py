@@ -20,17 +20,15 @@ class RewriteVariableName(ast.NodeTransformer):
 class AST:
     def __init__(self, maxLevel=3):
         self.maxLevel = maxLevel
-        self.levels = [[] for _ in range(maxLevel)]
+        self.level0 = []
         self.levelParentChild = [[] for _ in range(maxLevel - 1)]
 
     def createAst(self, sourceCode):
         inputASTtree = ast.parse(sourceCode)
         newASTTree = RewriteVariableName().visit(inputASTtree)
         newSourceCode = to_source(newASTTree)
-        # print(newSourceCode)
         newASTTreeWithCtx = ast.parse(newSourceCode)
-        # print(ast.dump(newASTTree))
-        # print(ast.dump(newASTTreeWithCtx))
+        self.level0 = ast.dump(newASTTreeWithCtx)
         return newASTTreeWithCtx
 
     def countExprType(self, tree, exprType):
@@ -39,19 +37,6 @@ class AST:
             if(isinstance(node, exprType)):
                 count += 1
         return count
-
-    def getLevels(self, node, level=0):
-        if(level < self.maxLevel):
-            self.levels[level].append(ast.dump(node))
-
-        for _, value in ast.iter_fields(node):
-            if(isinstance(value, ast.AST)):
-                value = [value]
-
-            if(isinstance(value, list)):
-                for item in value:
-                    if(isinstance(item, ast.AST)):
-                        self.getLevels(item, level=level+1)
         
     def getChildren(self, node):
         parent = ast.dump(node)
@@ -130,11 +115,10 @@ class Winnowing:
     def winnowing(self, kgrams, k, t):
         modified_min_func = self.get_min(lambda key_value: key_value[0])
         
-        document_fingerprints = []
+        docFGPT = []
         
-        # print(kgrams)
         hash_table = [ (hash(kgrams[i]) , i)  for i in range(len(kgrams)) ]
-        # print(len(hash_table))
+        print(len(hash_table))
         
         window_length = t - k + 1
         window_begin = 0
@@ -148,20 +132,20 @@ class Winnowing:
             
             if(minimum_hash != window_minimum):
                 # print(window_minimum)
-                document_fingerprints.append(window_minimum[0]) #not taking positions into consideration
+                docFGPT.append(window_minimum[0]) #not taking positions into consideration
                 minimum_hash = window_minimum
 
             window_begin = window_begin + 1
             window_end = window_end + 1
 
-        return document_fingerprints
+        return docFGPT
 
     def generateFGPT(self, data, k, t):
         cleaned_data = self.preprocess(data)
         kgrams = self.generateKgrams(cleaned_data, k)
         # print(len(kgrams))
-        document_fingerprints = self.winnowing(kgrams, k, t)
-        return document_fingerprints
+        docFGPT = self.winnowing(kgrams, k, t)
+        return docFGPT
 
 
 def readFile(filename):
@@ -194,9 +178,6 @@ if __name__ == '__main__':
         "ifCount" : ast2.countExprType(generatedAST2, ast.If),
         "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef)
     }
-
-    ast1.getLevels(generatedAST1)
-    ast2.getLevels(generatedAST2)
 
     ast1.getParentChildRelations(generatedAST1)
     ast2.getParentChildRelations(generatedAST2)
@@ -232,8 +213,8 @@ if __name__ == '__main__':
     lev2s = []
 
     for i in range(1):
-        fingerprints1_0 = winnow.generateFGPT('\n'.join(ast1.levels[0]), 13, 17)
-        fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.levels[0]), 13, 17)
+        fingerprints1_0 = winnow.generateFGPT('\n'.join(ast1.level0), 13, 17)
+        fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.level0), 13, 17)
         cosine_similarity_lev0 = winnow.cosine_similarity(fingerprints1_0, fingerprints2_0)
         lev0s.append(cosine_similarity_lev0)
 
