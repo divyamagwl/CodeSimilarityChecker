@@ -1,13 +1,10 @@
-import ast
 import sys
+import ast
 from astor import to_source
 import nltk
 from nltk.util import ngrams
-import sys
 import math
 from collections import Counter
-from statistics import mean
-import sys
 
 # Change all variable names to x
 class RewriteVariableName(ast.NodeTransformer):
