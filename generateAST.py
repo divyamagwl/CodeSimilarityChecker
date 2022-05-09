@@ -152,14 +152,14 @@ def readFile(filename):
         contents = f.read()
         return contents
 
-def calculateNormScores(ast1_constructs, ast2_constructs):
+def calculateNormScores(ast1_constructs, ast2_constructs, code):
     norm_values = []
 
     for i in range(len(ast1_constructs)):
         p1_count = ast1_constructs[i]
         p2_count = ast2_constructs[i]
 
-        if p1_count != 0 and p2_count != 0:
+        if p1_count != 0 and p2_count != 0 and code[i] != '0':
             N = 1 - (abs(p1_count - p2_count) / (p1_count + p2_count))
             norm_values.append(N)
 
@@ -169,7 +169,7 @@ def calculateNormScores(ast1_constructs, ast2_constructs):
 if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[2]
-    file3 = "011"# sys.argv[3]
+    code =  sys.argv[3]
 
     ast1 = AST()
     ast2 = AST()
@@ -185,6 +185,7 @@ if __name__ == '__main__':
         "ifCount" : ast1.countExprType(generatedAST1, ast.If),
         "controlFlow" : ast1.countExprType(generatedAST1, (ast.Break,ast.Continue)),
         "funcCount" : ast1.countExprType(generatedAST1, ast.FunctionDef),
+        "arith" : ast1.countExprType(generatedAST1, (ast.UnaryOp,ast.BinOp)),
     }
    
     ast2_counts = {
@@ -192,6 +193,7 @@ if __name__ == '__main__':
         "ifCount" : ast2.countExprType(generatedAST2, ast.If),
         "controlFlow" : ast2.countExprType(generatedAST2, (ast.Break,ast.Continue)),
         "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef),
+        "arith" : ast2.countExprType(generatedAST2, (ast.UnaryOp,ast.BinOp)),
     }
 
     ast1.getParentChildRelations(generatedAST1)
@@ -202,9 +204,6 @@ if __name__ == '__main__':
     
     for i in range(ast2.maxLevel - 1):
         ast2.levelParentChild[i].sort
-
-    print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"])
-    print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"])
 
     input_fp1_list1 = []
     input_fp1_list2 = []
@@ -240,7 +239,7 @@ if __name__ == '__main__':
     ast1_constructs = list(ast1_counts.values())
     ast2_constructs = list(ast2_counts.values())
 
-    norm_values = calculateNormScores(ast1_constructs, ast2_constructs)
+    norm_values = calculateNormScores(ast1_constructs, ast2_constructs, code)
 
     total_similarity_score_win = ((0.5 * final_cosine_similarity_lev0) + (0.3 * final_cosine_similarity_lev1) + (0.2 * final_cosine_similarity_lev2))
 
@@ -250,6 +249,6 @@ if __name__ == '__main__':
         final_score = (total_similarity_score_win * alpha) + (final_norm_score * (100 - alpha))
     else:
         final_score = (total_similarity_score_win * 100)
-        
+
     print("Similarity score = ", final_score)
     
