@@ -233,7 +233,7 @@ if __name__ == '__main__':
     weight = 1 / (min_level + 2)
     total_similarity_score_win = sum([i*weight for i in final_cosine_similarities])
 
-    alpha = 60
+    alpha = 10
     if(len(norm_values) != 0):
         final_norm_score = (sum(norm_values) / len(norm_values))
         final_score = (total_similarity_score_win * alpha) + (final_norm_score * (100 - alpha))
