@@ -10,9 +10,9 @@ A tool which can tell how similar two programs are and assigns a score to their 
     python3 generateAST.py <file-path> <file-path>
 
 # Example:
-    python3 generateAST.py test/1.py test/2.py 11111
+    python3 generateAST.py test/1.py test/2.py 111111
 
-# Code
+# Construct Flag
 
 It is a 6 character long binary string code.
 
