@@ -96,21 +96,10 @@ class Winnowing:
 
         return float(numerator) / denominator
 
-    def get_min(self, get_key = lambda x: x):
-        def rightmost_minimum(l):
-            minimum = float('inf')
-            minimum_index = -1
-            pos = 0
-            
-            while(pos < len(l)):
-                if (get_key(l[pos]) < minimum):
-                    minimum = get_key(l[pos])
-                    minimum_index = pos
-                pos += 1
-            
-            return l[minimum_index]
-        return rightmost_minimum
-
+    def right_min(self,l):
+        index = len(l)- l[::-1].index(min(l)) -1 
+        return l[index]
+    
     def generateKgrams(self, text, k):
         token = nltk.word_tokenize(text)
         kgrams = ngrams(token, k)
@@ -121,41 +110,33 @@ class Winnowing:
         text = text.lower()
         return text
 
-    # Have used the inbuilt hash function (Should try a self defined rolling hash function)
+    # Rolling window method with hashing to generate representative fingerprints
     def winnowing(self, kgrams, k, t):
-        modified_min_func = self.get_min(lambda key_value: key_value[0])
+        fingerprints = [] #fingerprints array
         
-        docFGPT = []
-        
-        hash_table = [ (hash(kgrams[i]) , i)  for i in range(len(kgrams)) ]
-        # print(len(hash_table))
-        
-        window_length = t - k + 1
-        window_begin = 0
-        window_end = window_length
-        
-        minimum_hash = None
+        hashes = [(hash(kgrams[i]), i)  for i in range(len(kgrams))] #hashing each k-gram
+        num_hashes = len(hashes)
+ 
+        window_size = t - k + 1 #size of window = threshold - kgram_size + 1
 
-        while (window_end < len(hash_table)):
-            window = hash_table[window_begin:window_end]
-            window_minimum = modified_min_func(window)
+        minimum_hash = None #to prevent duplicate hash addition from 2 adjacent windows
+        
+        for begin,end in zip(range(0, num_hashes), range(window_size, num_hashes)): #window loop
             
-            if(minimum_hash != window_minimum):
-                # print(window_minimum)
-                docFGPT.append(window_minimum[0]) #not taking positions into consideration
-                minimum_hash = window_minimum
+            window_min = self.right_min(hashes[begin:end]) #getting rightmost minimum of the hash window
+            
+            if(minimum_hash != window_min): #checking for duplicate
+                fingerprints.append(window_min[0]) #(hash(kgrams[i]),i) we are not usin position
+                minimum_hash = window_min #storing minimum hash for next window check
 
-            window_begin = window_begin + 1
-            window_end = window_end + 1
-
-        return docFGPT
+        return fingerprints #returning the final fingerprints representating our text
 
     def generateFGPT(self, data, k, t):
         cleaned_data = self.preprocess(data)
         kgrams = self.generateKgrams(cleaned_data, k)
         # print(len(kgrams))
-        docFGPT = self.winnowing(kgrams, k, t)
-        return docFGPT
+        dataFGPT = self.winnowing(kgrams, k, t)
+        return dataFGPT
 
 
 def readFile(filename):
