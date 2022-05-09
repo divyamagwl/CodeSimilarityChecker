@@ -9,6 +9,7 @@ from collections import Counter
 from statistics import mean
 import sys
 
+# Change all variable names to x
 class RewriteVariableName(ast.NodeTransformer):
     def visit_Name(self, node):
         if(isinstance(node, ast.Name)):
@@ -24,21 +25,32 @@ class AST:
         self.parents = [[] for _ in range(maxLevel)]
         self.children = [[] for _ in range(maxLevel)]
 
+    # create an AST given a source code
     def createAst(self, sourceCode):
         inputASTtree = ast.parse(sourceCode)
         newASTTree = RewriteVariableName().visit(inputASTtree)
+        
+         # rewriting variable names lead to loss of context
+        # So, we againg change it to source code, parse it with context
+        # (Load, Store, Del)
+        # and dump it in form of string in self.level0
         newSourceCode = to_source(newASTTree)
         newASTTreeWithCtx = ast.parse(newSourceCode)
         self.level0 = ast.dump(newASTTreeWithCtx)
         return newASTTreeWithCtx
 
+    
+    # counts the number of expressions of the given type in the 
+    # given AST
     def countExprType(self, tree, exprType):
         count = 0
         for node in ast.walk(tree):
             if(isinstance(node, exprType)):
                 count += 1
         return count
-        
+    
+    # returns the current node and list of its children
+    # in form of a string  
     def getChildren(self, node):
         parent = ast.dump(node)
         children = []
