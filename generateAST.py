@@ -8,7 +8,6 @@ import math
 from collections import Counter
 from statistics import mean
 import sys
-import csv
 
 class RewriteVariableName(ast.NodeTransformer):
     def visit_Name(self, node):
@@ -153,6 +152,19 @@ def readFile(filename):
         contents = f.read()
         return contents
 
+def calculateNormScores(ast1_constructs, ast2_constructs):
+    norm_values = []
+
+    for i in range(len(ast1_constructs)):
+        p1_count = ast1_constructs[i]
+        p2_count = ast2_constructs[i]
+
+        if p1_count != 0 and p2_count != 0:
+            N = 1 - (abs(p1_count - p2_count) / (p1_count + p2_count))
+            norm_values.append(N)
+
+    return norm_values
+
 
 if __name__ == '__main__':
     file1 = sys.argv[1]
@@ -225,32 +237,19 @@ if __name__ == '__main__':
     final_cosine_similarity_lev2 = round(winnow.cosine_similarity(fingerprints1_2, fingerprints2_2), 2)
 
 
-    count_values = []
-    for i in range(3):
-        a = list(ast1_counts.values())[i]
-        b = list(ast2_counts.values())[i]
-        count_values.append([a,b])
+    ast1_constructs = list(ast1_counts.values())
+    ast2_constructs = list(ast2_counts.values())
 
-    normalization_score = 0
-    t=0
-    for c in range(3):
-        x=count_values[c][0]
-        y=count_values[c][1]
-        if(x + y)!=0:
-            t=t+1
-            if x>y:
-                s = 1-((x-y)/(x+y))
-            else:
-                s = 1-((y-x)/(x+y))    
-            normalization_score+=(10*s)
+    norm_values = calculateNormScores(ast1_constructs, ast2_constructs)
 
-    if t!=0:
-        normalization_score=normalization_score/(t*10)
-        total_similarity_score_win = ((0.5*final_cosine_similarity_lev0) + (0.3*final_cosine_similarity_lev1) + (0.2*final_cosine_similarity_lev2))
-        normalization_score = normalization_score
-        final_score = (total_similarity_score_win*60)+(normalization_score*40)
-        print("Similarity score = : \n", final_score)
+    total_similarity_score_win = ((0.5 * final_cosine_similarity_lev0) + (0.3 * final_cosine_similarity_lev1) + (0.2 * final_cosine_similarity_lev2))
+
+    alpha = 60
+    if(len(norm_values) != 0):
+        final_norm_score = (sum(norm_values) / len(norm_values))
+        final_score = (total_similarity_score_win * alpha) + (final_norm_score * (100 - alpha))
     else:
-        total_similarity_score_win = ((0.5*final_cosine_similarity_lev0) + (0.3*final_cosine_similarity_lev1) + (0.2*final_cosine_similarity_lev2))
-        final_score = (total_similarity_score_win*100)
-        print("Similarity score = : \n", final_score)
+        final_score = (total_similarity_score_win * 100)
+        
+    print("Similarity score = ", final_score)
+    
