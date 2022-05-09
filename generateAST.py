@@ -157,6 +157,7 @@ def readFile(filename):
 if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[2]
+    file3 = sys.argv[3]
 
     ast1 = AST()
     ast2 = AST()
@@ -170,13 +171,15 @@ if __name__ == '__main__':
     ast1_counts = {
         "loopsCount" : ast1.countExprType(generatedAST1, (ast.For, ast.While)),
         "ifCount" : ast1.countExprType(generatedAST1, ast.If),
-        "funcCount" : ast1.countExprType(generatedAST1, ast.FunctionDef)
+        "controlFlow" : ast1.countExprType(generatedAST1, (ast.Break,ast.Continue)),
+        "funcCount" : ast1.countExprType(generatedAST1, ast.FunctionDef),
     }
    
     ast2_counts = {
         "loopsCount" : ast2.countExprType(generatedAST2, (ast.For, ast.While)),
         "ifCount" : ast2.countExprType(generatedAST2, ast.If),
-        "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef)
+        "controlFlow" : ast2.countExprType(generatedAST2, (ast.Break,ast.Continue)),
+        "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef),
     }
 
     ast1.getParentChildRelations(generatedAST1)
@@ -188,8 +191,8 @@ if __name__ == '__main__':
     for i in range(ast2.maxLevel - 1):
         ast2.levelParentChild[i].sort
 
-    print(ast1_counts["loopsCount"], ast1_counts["ifCount"], ast1_counts["funcCount"])
-    print(ast2_counts["loopsCount"], ast2_counts["ifCount"], ast2_counts["funcCount"])
+    print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"])
+    print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"])
 
     input_fp1_list1 = []
     input_fp1_list2 = []
