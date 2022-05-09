@@ -1,7 +1,5 @@
 import nltk
 from nltk.util import ngrams
-import math
-from collections import Counter
 
 # FGPT: Fignerprint
 class Winnowing:
@@ -46,19 +44,3 @@ class Winnowing:
         kgrams = self.generateKgrams(cleaned_data, k)
         dataFGPT = self.winnowing(kgrams, k, threshold)
         return dataFGPT
-
-    def cosineSimilarity(self, l1, l2):
-        vec1, vec2 = Counter(l1), Counter(l2)
-        intersection = set(vec1.keys()) & set(vec2.keys())
-
-        numerator = sum([vec1[count] * vec2[count] for count in intersection])
-
-        sum1 = sum([vec1[count] ** 2 for count in vec1.keys()])
-        sum2 = sum([vec2[count] ** 2 for count in vec2.keys()])
-        denominator = math.sqrt(sum1) * math.sqrt(sum2)
-
-        try: 
-            result = float(numerator) / denominator
-        except:
-            result = 0.0
-        return result

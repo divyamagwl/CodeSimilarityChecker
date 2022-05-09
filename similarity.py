@@ -1,25 +1,7 @@
 import sys
 from generateAST import *
 from winnowing import *
-
-
-def readFile(filename):
-    with open(filename) as f:
-        contents = f.read()
-        return contents
-
-def calculateNormScores(ast1_constructs, ast2_constructs, constructFlag):
-    norm_values = []
-
-    for i in range(len(ast1_constructs)):
-        p1_count = ast1_constructs[i]
-        p2_count = ast2_constructs[i]
-
-        if p1_count != 0 and p2_count != 0 and constructFlag[i] != '0':
-            N = 1 - (abs(p1_count - p2_count) / (p1_count + p2_count))
-            norm_values.append(N)
-
-    return norm_values
+from utility import *
 
 
 if __name__ == '__main__':
@@ -92,7 +74,7 @@ if __name__ == '__main__':
     final_cosine_similarities = []
 
     for i in range(len(fingerprints1)):
-        cosine_score = winnow.cosineSimilarity(fingerprints1[i], fingerprints2[i])
+        cosine_score = cosineSimilarity(fingerprints1[i], fingerprints2[i])
         final_cosine_similarities.append(round(cosine_score, 2))
 
     ast1_constructs = list(ast1_counts.values())
