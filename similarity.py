@@ -41,8 +41,8 @@ if __name__ == '__main__':
     ast2.generateParentChild(generatedAST2)
     
 
-    print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"],ast1_counts["excepCount"])
-    print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"],ast2_counts["excepCount"])
+    print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"],ast1_counts["arith"], ast1_counts["excepCount"])
+    print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"],ast2_counts["arith"], ast2_counts["excepCount"])
 
 
     # for level in range(ast1.maxLevel):

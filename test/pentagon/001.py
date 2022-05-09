@@ -2,24 +2,26 @@
 
 import math
 
+# your code for class Shape  -- Q.4(f)
+
 class Shape:
   def __init__(self, name):
     self.name = name
+    return self.name + "("  + "area = " + str(self.area()) + ", circumference = " + str(self.circumference()) + ")"
 
-  def __str__(self):
-    return self.name + "("  + \
-      "area = " + str(self.area()) + \
-      ", circumference = " + str(self.circumference()) + ")"
- 
+
+# your code for class Triangle -- Q.4(a)
+
 class Triangle(Shape):
-  def __init__(self, b, h, name="Triangle"):
-    Shape.__init__(self, name)
+  def __init__(self,b,h, name="Triangle"):
+    Shape.__init__(self, name)  
     self.base = b
     self.height = h
 
   def area(self):
-    return 0.5 * self.base * self.height
+    return (1.0/2.0)*self.base*self.height
 
+# code for RegularPolygon is provided below for your use.
 class RegularPolygon(Shape):
   def __init__(self, n, l, name="Regular Polygon"):
     if(n < 3):
@@ -42,22 +44,38 @@ class RegularPolygon(Shape):
   def get_side(self):
     return self.length
 
+# your code for class Square -- Q.4(c)
+
 class Square(RegularPolygon):
-  def __init__(self, s, name="Square"):
-    RegularPolygon.__init__(self, 4, s, name)
+  def __init__(self,s,name="Square"):
+    RegularPolygon.__init__(self,4,s,name)
+
+
+# your code for class EquilateralTriangle -- Q.4(c)
 
 class EquilateralTriangle(RegularPolygon):
-  def __init__(self, s, name="Equilateral Triangle"):
-    RegularPolygon.__init__(self, 3, s, name)
+  def __init__(self,s,name="EquilateralTriangle"):
+    RegularPolygon.__init__(self,3,s,name)
 
-class Pentagon(RegularPolygon):
-  def __init__(self, s, name="Pentagon"):
-    RegularPolygon.__init__(self, 5, s, name)
-    self.triangle = EquilateralTriangle(s)
+  def area(self):
+    return RegularPolygon.area(self)
+
+  def circumference(self):
+    return 3*self.base
+
+# your code for class Pentagon -- Q.4(d) and Q.4(e)
+
+class Pentagon():
+  def __init__(self,s,name="Pentagon"):
+    Shape.__init__(self,name)
+    self.equilateraltriangle=EquilateralTriangle(s)
     self.square = Square(s)
 
   def area(self):
-    return self.triangle.area() + self.square.area()
+    return (self.equilateraltriangle.area()+self.square.area())
+
+  def circumference(self):
+    return 5*self.square.length
 
 if __name__ == "__main__":
   t1 = EquilateralTriangle(5)
