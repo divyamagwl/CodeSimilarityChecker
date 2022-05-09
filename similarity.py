@@ -74,7 +74,6 @@ if __name__ == '__main__':
     k, t = 13, 17
 
     min_level = min(ast1.maxLevel, ast2.maxLevel) - 2
-    print(min_level)
 
     fingerprints1 = [] #level0, level 1,...,min_level parents, level min_level children
     fingerprints2 = []
@@ -101,7 +100,7 @@ if __name__ == '__main__':
 
     norm_values = calculateNormScores(ast1_constructs, ast2_constructs, code)
     
-    weight = 1/(min_level+2)
+    weight = 1 / (min_level + 2)
     total_similarity_score_win = sum([i*weight for i in final_cosine_similarities])
 
     alpha = 60
