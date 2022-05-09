@@ -2,21 +2,6 @@ import ast
 import sys
 import pickle
 from astor import to_source
-import nltk
-import sys
-import math
-import pickle
-from nltk import word_tokenize
-from nltk.util import ngrams
-from nltk import cluster
-from collections import Counter
-from statistics import mean
-import networkx as nx
-import sys
-import csv
-
-from regex import P
-
 
 # To modify the nodes(change identifier names) as we traverse the AST
 class RemoveVariableNames(ast.NodeTransformer):
@@ -173,6 +158,19 @@ for ele in pc_1:
 # print("-------------------------------------------------------------------------------------------")
 
 
+import nltk
+import sys
+import math
+import pickle
+from nltk import word_tokenize
+from nltk.util import ngrams
+from nltk import cluster
+from collections import Counter
+from statistics import mean
+import networkx as nx
+import sys
+import csv
+
 # def buildVector(iterable1, iterable2):
 #     counter1 = Counter(iterable1)
 #     counter2= Counter(iterable2)
@@ -282,6 +280,9 @@ def generate_fingerprints(file_name, k, t) :
     f = open(file_name)
     data.append(f.read())
     
+    # print("Generating fingerprint")
+    # print(data)
+
     preprocessed_data = preprocess(data)
     kgrams = generate_kgrams(preprocessed_data, k)
     # print(len(kgrams))
@@ -337,7 +338,7 @@ lev0s = []
 lev1s = []
 lev2s = []
 
-for i in range(10):
+for i in range(1):
     fingerprints1_0 = generate_fingerprints((program1+"_lev0.txt"), 13, 17)
     fingerprints2_0 = generate_fingerprints((program2+"_lev0.txt"), 13, 17)
     cosine_similarity_lev0 = cosine_similarity(fingerprints1_0, fingerprints2_0)
@@ -352,6 +353,10 @@ for i in range(10):
     fingerprints2_2 = generate_fingerprints((program2+"_lev2.txt"), 13, 17)
     cosine_similarity_lev2 = cosine_similarity(fingerprints1_2, fingerprints2_2)
     lev2s.append(cosine_similarity_lev2)
+
+print(lev0s)
+print(lev1s)
+print(lev2s)
 # print(len(fingerprints1_0))
 # print(len(fingerprints2_0))
 
