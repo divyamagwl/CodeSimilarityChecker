@@ -196,6 +196,7 @@ if __name__ == '__main__':
         "ifCount" : ast1.countExprType(generatedAST1, ast.If),
         "controlFlow" : ast1.countExprType(generatedAST1, (ast.Break,ast.Continue)),
         "funcCount" : ast1.countExprType(generatedAST1, ast.FunctionDef),
+        "excepCount":ast1.countExprType(generatedAST1, ast.ExceptHandler)    
     }
    
     ast2_counts = {
@@ -203,14 +204,15 @@ if __name__ == '__main__':
         "ifCount" : ast2.countExprType(generatedAST2, ast.If),
         "controlFlow" : ast2.countExprType(generatedAST2, (ast.Break,ast.Continue)),
         "funcCount" : ast2.countExprType(generatedAST2, ast.FunctionDef),
+        "excepCount":ast2.countExprType(generatedAST2, ast.ExceptHandler)
     }
 
     ast1.getParentChildRelations(generatedAST1)
     ast2.getParentChildRelations(generatedAST2)
     
 
-    print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"])
-    print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"])
+    print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"],ast1_counts["excepCount"])
+    print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"],ast2_counts["excepCount"])
 
 
     for level in range(ast1.maxLevel):
