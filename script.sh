@@ -7,3 +7,4 @@ cat similarity.py >> test/generateAST.py
 
 python3 similarity.py test/generateAST.py test/mix.py 111111 3
 
+python3 similarity.py test/1.py test/2.py 111000 3

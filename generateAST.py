@@ -39,7 +39,7 @@ class AST:
                 count += 1
         return count
         
-    def getParentChildRelations(self, root, level=0):
+    def generateParentChild(self, root, level=0):
         for _, value in ast.iter_fields(root):
             if(isinstance(value, ast.AST)):
                 value = [value]
@@ -58,4 +58,4 @@ class AST:
                                 self.children[level].append(child)
                             self.levelParentChild[level].append([parent, children])
 
-                            self.getParentChildRelations(item, level=level+1)
+                            self.generateParentChild(item, level=level+1)
