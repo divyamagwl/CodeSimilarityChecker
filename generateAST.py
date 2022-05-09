@@ -118,7 +118,7 @@ class Winnowing:
         docFGPT = []
         
         hash_table = [ (hash(kgrams[i]) , i)  for i in range(len(kgrams)) ]
-        print(len(hash_table))
+        # print(len(hash_table))
         
         window_length = t - k + 1
         window_begin = 0
@@ -207,30 +207,19 @@ if __name__ == '__main__':
 
 
     winnow = Winnowing(ast1, ast2)
+    k, t = 13, 17
 
-    lev0s = []
-    lev1s = []
-    lev2s = []
+    fingerprints1_0 = winnow.generateFGPT('\n'.join(ast1.level0), k, t)
+    fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.level0), k, t)
+    final_cosine_similarity_lev0 = round(winnow.cosine_similarity(fingerprints1_0, fingerprints2_0), 2)
 
-    for i in range(1):
-        fingerprints1_0 = winnow.generateFGPT('\n'.join(ast1.level0), 13, 17)
-        fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.level0), 13, 17)
-        cosine_similarity_lev0 = winnow.cosine_similarity(fingerprints1_0, fingerprints2_0)
-        lev0s.append(cosine_similarity_lev0)
+    fingerprints1_1 = winnow.generateFGPT('\n'.join(input_fp1_list1), k, t)
+    fingerprints2_1 = winnow.generateFGPT('\n'.join(input_fp2_list1), k, t)
+    final_cosine_similarity_lev1 = round(winnow.cosine_similarity(fingerprints1_1, fingerprints2_1), 2)
 
-        fingerprints1_1 = winnow.generateFGPT('\n'.join(input_fp1_list1), 13, 17)
-        fingerprints2_1 = winnow.generateFGPT('\n'.join(input_fp2_list1), 13, 17)
-        cosine_similarity_lev1 = winnow.cosine_similarity(fingerprints1_1, fingerprints2_1)
-        lev1s.append(cosine_similarity_lev1)
-
-        fingerprints1_2 = winnow.generateFGPT('\n'.join(input_fp1_list2), 13, 17)
-        fingerprints2_2 = winnow.generateFGPT('\n'.join(input_fp2_list2), 13, 17)
-        cosine_similarity_lev2 = winnow.cosine_similarity(fingerprints1_2, fingerprints2_2)
-        lev2s.append(cosine_similarity_lev2)
-
-    final_cosine_similarity_lev0 = round(mean(lev0s), 2)
-    final_cosine_similarity_lev1 = round(mean(lev1s), 2)
-    final_cosine_similarity_lev2 = round(mean(lev2s), 2)
+    fingerprints1_2 = winnow.generateFGPT('\n'.join(input_fp1_list2), k, t)
+    fingerprints2_2 = winnow.generateFGPT('\n'.join(input_fp2_list2), k, t)
+    final_cosine_similarity_lev2 = round(winnow.cosine_similarity(fingerprints1_2, fingerprints2_2), 2)
 
 
     count_values = []
