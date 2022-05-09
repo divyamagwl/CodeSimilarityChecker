@@ -18,7 +18,7 @@ class RewriteVariableName(ast.NodeTransformer):
         return node
 
 class AST:
-    def __init__(self, maxLevel=6):
+    def __init__(self, maxLevel=3):
         self.maxLevel = maxLevel
         self.level0 = []
         self.levelParentChild = [[] for _ in range(maxLevel)]
@@ -48,16 +48,7 @@ class AST:
             if(isinstance(node, exprType)):
                 count += 1
         return count
-    
-    # returns the current node and list of its children
-    # in form of a string  
-    def getChildren(self, node):
-        parent = ast.dump(node)
-        children = []
-        for child_node in ast.iter_child_nodes(node):
-            children.append(ast.dump(child_node))
-        return parent, children
-
+        
     def getParentChildRelations(self, root, level=0):
         for _, value in ast.iter_fields(root):
             if(isinstance(value, ast.AST)):
@@ -66,19 +57,18 @@ class AST:
             if(isinstance(value, list)):
                 for item in value:
                     if(isinstance(item, ast.AST)):
-                        p, c = self.getChildren(item)
+                        parent = ast.dump(item)
+                        children = []
+                        for child_node in ast.iter_child_nodes(item):
+                            children.append(ast.dump(child_node))
 
                         if(level < self.maxLevel):
-                            self.levelParentChild[level].append([p, c])
+                            self.parents[level].append(parent)
+                            for child in children:
+                                self.children[level].append(child)
+                            self.levelParentChild[level].append([parent, children])
 
                         self.getParentChildRelations(item, level=level+1)
-
-    def separateParentChild(self, level):
-        for parent, children in self.levelParentChild[level]:
-            self.parents[level].append(parent)
-            for child in children:
-                self.children[level].append(child)
-
 
 # FGPT: Fignerprint
 class Winnowing:
@@ -218,14 +208,6 @@ if __name__ == '__main__':
     ast1.getParentChildRelations(generatedAST1)
     ast2.getParentChildRelations(generatedAST2)
     
-    for i in range(ast1.maxLevel):
-        ast1.levelParentChild[i].sort
-    
-    for i in range(ast2.maxLevel):
-        ast2.levelParentChild[i].sort
-
-    ast1.separateParentChild(0)
-    ast2.separateParentChild(0)
 
     print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"])
     print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"])
