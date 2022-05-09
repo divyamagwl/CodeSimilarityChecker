@@ -169,7 +169,7 @@ def calculateNormScores(ast1_constructs, ast2_constructs):
 if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[2]
-    file3 = sys.argv[3]
+    file3 = "011"# sys.argv[3]
 
     ast1 = AST()
     ast2 = AST()
