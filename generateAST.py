@@ -229,16 +229,16 @@ if __name__ == '__main__':
     winnow = Winnowing(ast1, ast2)
     k, t = 13, 17
 
-    fingerprints1_0 = winnow.generateFGPT('\n'.join(ast1.level0), k, t)
-    fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.level0), k, t)
+    fingerprints1_0 = winnow.generateFGPT(''.join(ast1.level0), k, t)
+    fingerprints2_0 = winnow.generateFGPT(''.join(ast2.level0), k, t)
     final_cosine_similarity_lev0 = round(winnow.cosine_similarity(fingerprints1_0, fingerprints2_0), 2)
 
-    fingerprints1_1 = winnow.generateFGPT('\n'.join(ast1.parents[0]), k, t)
-    fingerprints2_1 = winnow.generateFGPT('\n'.join(ast2.parents[0]), k, t)
+    fingerprints1_1 = winnow.generateFGPT(''.join(ast1.parents[0]), k, t)
+    fingerprints2_1 = winnow.generateFGPT(''.join(ast2.parents[0]), k, t)
     final_cosine_similarity_lev1 = round(winnow.cosine_similarity(fingerprints1_1, fingerprints2_1), 2)
 
-    fingerprints1_2 = winnow.generateFGPT('\n'.join(ast1.children[0]), k, t)
-    fingerprints2_2 = winnow.generateFGPT('\n'.join(ast2.children[0]), k, t)
+    fingerprints1_2 = winnow.generateFGPT(''.join(ast1.children[0]), k, t)
+    fingerprints2_2 = winnow.generateFGPT(''.join(ast2.children[0]), k, t)
     final_cosine_similarity_lev2 = round(winnow.cosine_similarity(fingerprints1_2, fingerprints2_2), 2)
 
 
