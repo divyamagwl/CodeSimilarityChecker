@@ -70,23 +70,23 @@ if __name__ == '__main__':
     #         print("\n")
     #     print("--------------------------------------------------------------------------------------------------\n")
 
-    winnow = Winnowing(ast1, ast2)
-    k, t = 13, 17
+    winnow = Winnowing()
+    k, threshold = 13, 17
 
     min_level = min(ast1.maxLevel, ast2.maxLevel) - 2
 
     fingerprints1 = [] #level0, level 1,...,min_level parents, level min_level children
     fingerprints2 = []
     
-    fingerprints1.append(winnow.generateFGPT(''.join(ast1.level0), k, t))
-    fingerprints2.append(winnow.generateFGPT(''.join(ast2.level0), k, t))
+    fingerprints1.append(winnow.generateFGPT(''.join(ast1.level0), k, threshold))
+    fingerprints2.append(winnow.generateFGPT(''.join(ast2.level0), k, threshold))
 
     for i in range(min_level):
-         fingerprints1.append(winnow.generateFGPT(''.join(ast1.parents[i]), k, t))
-         fingerprints2.append(winnow.generateFGPT(''.join(ast2.parents[i]), k, t))
+         fingerprints1.append(winnow.generateFGPT(''.join(ast1.parents[i]), k, threshold))
+         fingerprints2.append(winnow.generateFGPT(''.join(ast2.parents[i]), k, threshold))
     
-    fingerprints1.append(winnow.generateFGPT(''.join(ast1.children[min_level-1]), k, t))
-    fingerprints2.append(winnow.generateFGPT(''.join(ast2.children[min_level-1]), k, t))
+    fingerprints1.append(winnow.generateFGPT(''.join(ast1.children[min_level-1]), k, threshold))
+    fingerprints2.append(winnow.generateFGPT(''.join(ast2.children[min_level-1]), k, threshold))
     
 
     final_cosine_similarities = []

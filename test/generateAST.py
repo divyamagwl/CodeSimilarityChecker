@@ -66,9 +66,6 @@ from collections import Counter
 
 # FGPT: Fignerprint
 class Winnowing:
-    def __init__(self, ast1, ast2):
-        self.program1 = ast1
-        self.program2 = ast2
 
     def cosineSimilarity(self, l1, l2):
         vec1, vec2 = Counter(l1), Counter(l2)
@@ -200,7 +197,7 @@ if __name__ == '__main__':
     #         print("\n")
     #     print("--------------------------------------------------------------------------------------------------\n")
 
-    winnow = Winnowing(ast1, ast2)
+    winnow = Winnowing()
     k, t = 13, 17
 
     min_level = min(ast1.maxLevel, ast2.maxLevel) - 2
@@ -235,7 +232,6 @@ if __name__ == '__main__':
     else:
         weightages = [1 / (len(final_cosine_similarities)) for _ in range(len(final_cosine_similarities))]
 
-    print(weightages)
     total_similarity_score_win = 0
     for i in range(len(final_cosine_similarities)):
         total_similarity_score_win += (final_cosine_similarities[i] * weightages[i])
