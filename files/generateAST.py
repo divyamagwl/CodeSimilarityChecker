@@ -57,16 +57,14 @@ class AST:
                         p, c = self.getChildren(item)
 
                         if(level < self.maxLevel - 1):
+                            self.parents[level].append(p)
+                            self.children[level].append(p)
                             self.levelParentChild[level].append([p, c])
+
 
                         self.getParentChildRelations(item, level=level+1)
 
-    def separateParentChild(self, level):
-        for parent, children in self.levelParentChild[level]:
-            self.parents[level].append(parent)
-            for child in children:
-                self.children[level].append(child)
-
+    # def separateParentChild(self, level=)
 
 # FGPT: Fignerprint
 class Winnowing:
@@ -212,12 +210,36 @@ if __name__ == '__main__':
     for i in range(ast2.maxLevel - 1):
         ast2.levelParentChild[i].sort
 
-    ast1.separateParentChild(0)
-    ast2.separateParentChild(0)
-
     print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"])
     print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"])
 
+    input_fp1_list1 = []
+    input_fp1_list2 = []
+    for element in ast1.levelParentChild[0]:
+        input_fp1_list1.append(element[0])
+        for item in element[1]:
+            input_fp1_list2.append(item)
+
+    input_fp2_list1 = []
+    input_fp2_list2 = []
+    for element in ast2.levelParentChild[0]:
+        input_fp2_list1.append(element[0])
+        for item in element[1]:
+            input_fp2_list2.append(item)
+
+    # print("LEVEL 1 PARENTS")
+    # print(input_fp1_list1)
+    # print("LEVEL 1 AST CLASS")
+    # print(ast1.levelParentChild[0])
+    # print("LEVEL 1 AST PARENTS")
+    # print(ast1.parents[0])
+
+    # print("LEVEL 1 CHILREN")
+    # print(input_fp1_list2)
+    # print("LEVEL 1 AST CLASS")
+    # print(ast1.levelParentChild[0])
+    # print("LEVEL 1 AST CHILDREN")
+    # print(ast1.children[0])
 
 
     winnow = Winnowing(ast1, ast2)
@@ -227,12 +249,12 @@ if __name__ == '__main__':
     fingerprints2_0 = winnow.generateFGPT('\n'.join(ast2.level0), k, t)
     final_cosine_similarity_lev0 = round(winnow.cosine_similarity(fingerprints1_0, fingerprints2_0), 2)
 
-    fingerprints1_1 = winnow.generateFGPT('\n'.join(ast1.parents[0]), k, t)
-    fingerprints2_1 = winnow.generateFGPT('\n'.join(ast2.parents[0]), k, t)
+    fingerprints1_1 = winnow.generateFGPT('\n'.join(input_fp1_list1), k, t)
+    fingerprints2_1 = winnow.generateFGPT('\n'.join(input_fp2_list1), k, t)
     final_cosine_similarity_lev1 = round(winnow.cosine_similarity(fingerprints1_1, fingerprints2_1), 2)
 
-    fingerprints1_2 = winnow.generateFGPT('\n'.join(ast1.children[0]), k, t)
-    fingerprints2_2 = winnow.generateFGPT('\n'.join(ast2.children[0]), k, t)
+    fingerprints1_2 = winnow.generateFGPT('\n'.join(input_fp1_list2), k, t)
+    fingerprints2_2 = winnow.generateFGPT('\n'.join(input_fp2_list2), k, t)
     final_cosine_similarity_lev2 = round(winnow.cosine_similarity(fingerprints1_2, fingerprints2_2), 2)
 
 
