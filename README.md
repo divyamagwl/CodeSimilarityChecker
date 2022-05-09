@@ -10,7 +10,7 @@ A tool which can tell how similar two programs are and assigns a score to their 
     python3 generateAST.py <file-path> <file-path>
 
 # Example:
-    python3 generateAST.py test/1.py test/2.py code
+    python3 generateAST.py test/1.py test/2.py 11111
 
 # Code
 
