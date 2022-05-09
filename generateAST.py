@@ -17,12 +17,12 @@ class RewriteVariableName(ast.NodeTransformer):
         return node
 
 class AST:
-    def __init__(self, maxLevel=3):
+    def __init__(self, maxLevel=6):
         self.maxLevel = maxLevel
         self.level0 = []
-        self.levelParentChild = [[] for _ in range(maxLevel - 1)]
-        self.parents = [[] for _ in range(maxLevel - 1)]
-        self.children = [[] for _ in range(maxLevel - 1)]
+        self.levelParentChild = [[] for _ in range(maxLevel)]
+        self.parents = [[] for _ in range(maxLevel)]
+        self.children = [[] for _ in range(maxLevel)]
 
     def createAst(self, sourceCode):
         inputASTtree = ast.parse(sourceCode)
@@ -56,7 +56,7 @@ class AST:
                     if(isinstance(item, ast.AST)):
                         p, c = self.getChildren(item)
 
-                        if(level < self.maxLevel - 1):
+                        if(level < self.maxLevel):
                             self.levelParentChild[level].append([p, c])
 
                         self.getParentChildRelations(item, level=level+1)
@@ -206,10 +206,10 @@ if __name__ == '__main__':
     ast1.getParentChildRelations(generatedAST1)
     ast2.getParentChildRelations(generatedAST2)
     
-    for i in range(ast1.maxLevel - 1):
+    for i in range(ast1.maxLevel):
         ast1.levelParentChild[i].sort
     
-    for i in range(ast2.maxLevel - 1):
+    for i in range(ast2.maxLevel):
         ast2.levelParentChild[i].sort
 
     ast1.separateParentChild(0)
@@ -219,6 +219,12 @@ if __name__ == '__main__':
     print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"])
 
 
+    for level in range(ast1.maxLevel):
+        print(f"-----------------------------LEVEL{level+1} -> LEVEL{level+2}-----------------------------------------------------")
+        for pc_i in range(len(ast1.levelParentChild[level])):
+            print("Parent = ", ast1.levelParentChild[level][pc_i][0], "\n\nChildren = ", ast1.levelParentChild[level][pc_i][1])
+            print("\n")
+        print("--------------------------------------------------------------------------------------------------\n")
 
     winnow = Winnowing(ast1, ast2)
     k, t = 13, 17
