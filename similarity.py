@@ -1,25 +1,7 @@
 import sys
 from generateAST import *
 from winnowing import *
-
-
-def readFile(filename):
-    with open(filename) as f:
-        contents = f.read()
-        return contents
-
-def calculateNormScores(ast1_constructs, ast2_constructs, constructFlag):
-    norm_values = []
-
-    for i in range(len(ast1_constructs)):
-        p1_count = ast1_constructs[i]
-        p2_count = ast2_constructs[i]
-
-        if p1_count != 0 and p2_count != 0 and constructFlag[i] != '0':
-            N = 1 - (abs(p1_count - p2_count) / (p1_count + p2_count))
-            norm_values.append(N)
-
-    return norm_values
+from utility import *
 
 
 if __name__ == '__main__':
@@ -70,29 +52,29 @@ if __name__ == '__main__':
     #         print("\n")
     #     print("--------------------------------------------------------------------------------------------------\n")
 
-    winnow = Winnowing(ast1, ast2)
-    k, t = 13, 17
+    winnow = Winnowing()
+    k, threshold = 13, 17
 
     min_level = min(ast1.maxLevel, ast2.maxLevel) - 2
 
     fingerprints1 = [] #level0, level 1,...,min_level parents, level min_level children
     fingerprints2 = []
     
-    fingerprints1.append(winnow.generateFGPT(''.join(ast1.level0), k, t))
-    fingerprints2.append(winnow.generateFGPT(''.join(ast2.level0), k, t))
+    fingerprints1.append(winnow.generateFGPT(''.join(ast1.level0), k, threshold))
+    fingerprints2.append(winnow.generateFGPT(''.join(ast2.level0), k, threshold))
 
     for i in range(min_level):
-         fingerprints1.append(winnow.generateFGPT(''.join(ast1.parents[i]), k, t))
-         fingerprints2.append(winnow.generateFGPT(''.join(ast2.parents[i]), k, t))
+         fingerprints1.append(winnow.generateFGPT(''.join(ast1.parents[i]), k, threshold))
+         fingerprints2.append(winnow.generateFGPT(''.join(ast2.parents[i]), k, threshold))
     
-    fingerprints1.append(winnow.generateFGPT(''.join(ast1.children[min_level-1]), k, t))
-    fingerprints2.append(winnow.generateFGPT(''.join(ast2.children[min_level-1]), k, t))
+    fingerprints1.append(winnow.generateFGPT(''.join(ast1.children[min_level-1]), k, threshold))
+    fingerprints2.append(winnow.generateFGPT(''.join(ast2.children[min_level-1]), k, threshold))
     
 
     final_cosine_similarities = []
 
     for i in range(len(fingerprints1)):
-        cosine_score = winnow.cosineSimilarity(fingerprints1[i], fingerprints2[i])
+        cosine_score = cosineSimilarity(fingerprints1[i], fingerprints2[i])
         final_cosine_similarities.append(round(cosine_score, 2))
 
     ast1_constructs = list(ast1_counts.values())
@@ -100,8 +82,14 @@ if __name__ == '__main__':
 
     norm_values = calculateNormScores(ast1_constructs, ast2_constructs, constructFlag)
     
-    weight = 1 / (min_level + 2)
-    total_similarity_score_win = sum([i*weight for i in final_cosine_similarities])
+    if maxLevel == 3:
+        weightages = [0.5, 0.3, 0.2]
+    else:
+        weightages = [1 / (len(final_cosine_similarities)) for _ in range(len(final_cosine_similarities))]
+
+    total_similarity_score_win = 0
+    for i in range(len(final_cosine_similarities)):
+        total_similarity_score_win += (final_cosine_similarities[i] * weightages[i])
 
     alpha = 60
     if(len(norm_values) != 0):

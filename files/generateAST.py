@@ -39,7 +39,7 @@ class AST:
                 count += 1
         return count
         
-    def getParentChildRelations(self, root, level=0):
+    def generateParentChild(self, root, level=0):
         for _, value in ast.iter_fields(root):
             if(isinstance(value, ast.AST)):
                 value = [value]
@@ -58,7 +58,7 @@ class AST:
                                 self.children[level].append(child)
                             self.levelParentChild[level].append([parent, children])
 
-                            self.getParentChildRelations(item, level=level+1)
+                            self.generateParentChild(item, level=level+1)
 import nltk
 from nltk.util import ngrams
 import math
@@ -138,14 +138,14 @@ def readFile(filename):
         contents = f.read()
         return contents
 
-def calculateNormScores(ast1_constructs, ast2_constructs, code):
+def calculateNormScores(ast1_constructs, ast2_constructs, constructFlag):
     norm_values = []
 
     for i in range(len(ast1_constructs)):
         p1_count = ast1_constructs[i]
         p2_count = ast2_constructs[i]
 
-        if p1_count != 0 and p2_count != 0 and code[i] != '0':
+        if p1_count != 0 and p2_count != 0 and constructFlag[i] != '0':
             N = 1 - (abs(p1_count - p2_count) / (p1_count + p2_count))
             norm_values.append(N)
 
@@ -155,7 +155,7 @@ def calculateNormScores(ast1_constructs, ast2_constructs, code):
 if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[2]
-    code = sys.argv[3]
+    constructFlag = sys.argv[3]
     maxLevel = int(sys.argv[4])
 
     ast1 = AST(maxLevel)
@@ -185,8 +185,8 @@ if __name__ == '__main__':
         "excepCount": ast2.countExprType(generatedAST2, ast.ExceptHandler)
     }
 
-    ast1.getParentChildRelations(generatedAST1)
-    ast2.getParentChildRelations(generatedAST2)
+    ast1.generateParentChild(generatedAST1)
+    ast2.generateParentChild(generatedAST2)
     
 
     print(ast1_counts["loopsCount"], ast1_counts["ifCount"],ast1_counts["controlFlow"], ast1_counts["funcCount"],ast1_counts["excepCount"])
@@ -228,10 +228,17 @@ if __name__ == '__main__':
     ast1_constructs = list(ast1_counts.values())
     ast2_constructs = list(ast2_counts.values())
 
-    norm_values = calculateNormScores(ast1_constructs, ast2_constructs, code)
+    norm_values = calculateNormScores(ast1_constructs, ast2_constructs, constructFlag)
     
-    weight = 1 / (min_level + 2)
-    total_similarity_score_win = sum([i*weight for i in final_cosine_similarities])
+    if maxLevel == 3:
+        weightages = [0.5, 0.3, 0.2]
+    else:
+        weightages = [1 / (len(final_cosine_similarities)) for _ in range(len(final_cosine_similarities))]
+
+    print(weightages)
+    total_similarity_score_win = 0
+    for i in range(len(final_cosine_similarities)):
+        total_similarity_score_win += (final_cosine_similarities[i] * weightages[i])
 
     alpha = 10
     if(len(norm_values) != 0):

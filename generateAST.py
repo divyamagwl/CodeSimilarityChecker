@@ -48,14 +48,16 @@ class AST:
                 for item in value:
                     if(isinstance(item, ast.AST)):
                         parent = ast.dump(item)
+
                         children = []
                         for child_node in ast.iter_child_nodes(item):
                             children.append(ast.dump(child_node))
 
                         if(level < self.maxLevel):
+                            self.levelParentChild[level].append([parent, children])
+
                             self.parents[level].append(parent)
                             for child in children:
                                 self.children[level].append(child)
-                            self.levelParentChild[level].append([parent, children])
 
                             self.generateParentChild(item, level=level+1)
