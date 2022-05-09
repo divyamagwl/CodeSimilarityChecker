@@ -112,7 +112,7 @@ class Winnowing:
         return text
 
     # Have used the inbuilt hash function (Should try a self defined rolling hash function)
-    def winnowing(self, kgrams, k, t):
+    def winnowing( kgrams, k, t):
         modified_min_func = self.get_min(lambda key_value: key_value[0])
         
         docFGPT = []
