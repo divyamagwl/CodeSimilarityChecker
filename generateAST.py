@@ -68,7 +68,7 @@ class AST:
                                 self.children[level].append(child)
                             self.levelParentChild[level].append([parent, children])
 
-                        self.getParentChildRelations(item, level=level+1)
+                            self.getParentChildRelations(item, level=level+1)
 
 # FGPT: Fignerprint
 class Winnowing:
@@ -76,28 +76,25 @@ class Winnowing:
         self.program1 = ast1
         self.program2 = ast2
 
-    def cosine_similarity(self, l1, l2):
-
-        vec1 = Counter(l1)
-        vec2 = Counter(l2)
-        
+    def cosineSimilarity(self, l1, l2):
+        vec1, vec2 = Counter(l1), Counter(l2)
         intersection = set(vec1.keys()) & set(vec2.keys())
-        
-        # print(intersection)
-        
-        numerator = sum([vec1[x] * vec2[x] for x in intersection])
 
-        sum1 = sum([vec1[x]**2 for x in vec1.keys()])
-        sum2 = sum([vec2[x]**2 for x in vec2.keys()])
+        numerator = sum([vec1[count] * vec2[count] for count in intersection])
+
+        sum1 = sum([vec1[count] ** 2 for count in vec1.keys()])
+        sum2 = sum([vec2[count] ** 2 for count in vec2.keys()])
         denominator = math.sqrt(sum1) * math.sqrt(sum2)
 
-        if not denominator:
-            return 0.0
+        try: 
+            result = float(numerator) / denominator
+        except:
+            result = 0.0
 
-        return float(numerator) / denominator
+        return result
 
-    def right_min(self,l):
-        index = len(l)- l[::-1].index(min(l)) -1 
+    def right_min(self, l):
+        index = len(l) - l[::-1].index(min(l)) - 1 
         return l[index]
     
     def generateKgrams(self, text, k):
@@ -126,7 +123,7 @@ class Winnowing:
             window_min = self.right_min(hashes[begin:end]) #getting rightmost minimum of the hash window
             
             if(minimum_hash != window_min): #checking for duplicate
-                fingerprints.append(window_min[0]) #(hash(kgrams[i]),i) we are not usin position
+                fingerprints.append(window_min[0]) #(hash(kgrams[i]),i) we are not using position
                 minimum_hash = window_min #storing minimum hash for next window check
 
         return fingerprints #returning the final fingerprints representating our text
@@ -134,7 +131,6 @@ class Winnowing:
     def generateFGPT(self, data, k, t):
         cleaned_data = self.preprocess(data)
         kgrams = self.generateKgrams(cleaned_data, k)
-        # print(len(kgrams))
         dataFGPT = self.winnowing(kgrams, k, t)
         return dataFGPT
 
@@ -196,27 +192,27 @@ if __name__ == '__main__':
     print(ast2_counts["loopsCount"], ast2_counts["ifCount"],ast2_counts["controlFlow"], ast2_counts["funcCount"],ast2_counts["excepCount"])
 
 
-    for level in range(ast1.maxLevel):
-        print(f"-----------------------------LEVEL{level+1} -> LEVEL{level+2}-----------------------------------------------------")
-        for pc_i in range(len(ast1.levelParentChild[level])):
-            print("Parent = ", ast1.levelParentChild[level][pc_i][0], "\n\nChildren = ", ast1.levelParentChild[level][pc_i][1])
-            print("\n")
-        print("--------------------------------------------------------------------------------------------------\n")
+    # for level in range(ast1.maxLevel):
+    #     print(f"-----------------------------LEVEL{level+1} -> LEVEL{level+2}-----------------------------------------------------")
+    #     for pc_i in range(len(ast1.levelParentChild[level])):
+    #         print("Parent = ", ast1.levelParentChild[level][pc_i][0], "\n\nChildren = ", ast1.levelParentChild[level][pc_i][1])
+    #         print("\n")
+    #     print("--------------------------------------------------------------------------------------------------\n")
 
     winnow = Winnowing(ast1, ast2)
     k, t = 13, 17
 
     fingerprints1_0 = winnow.generateFGPT(''.join(ast1.level0), k, t)
     fingerprints2_0 = winnow.generateFGPT(''.join(ast2.level0), k, t)
-    final_cosine_similarity_lev0 = round(winnow.cosine_similarity(fingerprints1_0, fingerprints2_0), 2)
+    final_cosineSimilarity_lev0 = round(winnow.cosineSimilarity(fingerprints1_0, fingerprints2_0), 2)
 
     fingerprints1_1 = winnow.generateFGPT(''.join(ast1.parents[0]), k, t)
     fingerprints2_1 = winnow.generateFGPT(''.join(ast2.parents[0]), k, t)
-    final_cosine_similarity_lev1 = round(winnow.cosine_similarity(fingerprints1_1, fingerprints2_1), 2)
+    final_cosineSimilarity_lev1 = round(winnow.cosineSimilarity(fingerprints1_1, fingerprints2_1), 2)
 
     fingerprints1_2 = winnow.generateFGPT(''.join(ast1.children[0]), k, t)
     fingerprints2_2 = winnow.generateFGPT(''.join(ast2.children[0]), k, t)
-    final_cosine_similarity_lev2 = round(winnow.cosine_similarity(fingerprints1_2, fingerprints2_2), 2)
+    final_cosineSimilarity_lev2 = round(winnow.cosineSimilarity(fingerprints1_2, fingerprints2_2), 2)
 
 
     ast1_constructs = list(ast1_counts.values())
@@ -224,7 +220,7 @@ if __name__ == '__main__':
 
     norm_values = calculateNormScores(ast1_constructs, ast2_constructs)
 
-    total_similarity_score_win = ((0.5 * final_cosine_similarity_lev0) + (0.3 * final_cosine_similarity_lev1) + (0.2 * final_cosine_similarity_lev2))
+    total_similarity_score_win = ((0.5 * final_cosineSimilarity_lev0) + (0.3 * final_cosineSimilarity_lev1) + (0.2 * final_cosineSimilarity_lev2))
 
     alpha = 60
     if(len(norm_values) != 0):
