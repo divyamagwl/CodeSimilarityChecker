@@ -81,12 +81,12 @@ if __name__ == '__main__':
     ast2_constructs = list(ast2_counts.values())
 
     norm_values = calculateNormScores(ast1_constructs, ast2_constructs, constructFlag)
-    
+    weight = 1 / (len(final_cosine_similarities))
     if maxLevel == 3:
         weightages = [0.5, 0.3, 0.2]
     else:
-        weightages = [1 / (len(final_cosine_similarities)) for _ in range(len(final_cosine_similarities))]
-
+        weightages = [ weight for _ in range(len(final_cosine_similarities))]
+    
     total_similarity_score_win = 0
     for i in range(len(final_cosine_similarities)):
         total_similarity_score_win += (final_cosine_similarities[i] * weightages[i])
