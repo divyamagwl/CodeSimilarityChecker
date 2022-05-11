@@ -11,8 +11,6 @@
 
 python3 similarity.py test/1.py test/2.py 110100 3
 
-# python3 similarity.py test/generateAST.py test/6_Amogh.py 111000 3
-
 # python3 similarity.py test/the-minion-game/001.py test/the-minion-game/002.py 110100 3
 
 # python3 similarity.py test/the-minion-game/001.py test/the-minion-game/002.py 110110 3
