@@ -9,7 +9,6 @@ class Winnowing:
         kgrams = ngrams(token, k)
         return list(kgrams)
     
-    # TODO: Add more preprocessing steps
     def preprocess(self, text):
         text = text.lower()
         return text
