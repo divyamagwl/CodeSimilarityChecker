@@ -6,11 +6,36 @@ A tool which can tell how similar two programs are and assigns a score to their 
     . venv/bin/activate
     pip3 install -r requirement.txt
 
-# Run program
+# Run program on API
+    python3 API.py
+
+Set max_level, loop_construct, if_construct, control_construct, function_construct, arithOP_construct and excep_construct.
+
+# Example:
+
+max_level = 3
+
+loop_construct = 1
+
+if_construct = 1 
+
+control_construct = 0 
+
+function_construct = 1
+
+arithOP_construct = 0
+
+excep_construct = 0
+
+file1 = test/1.py
+
+file2 = test/2.py
+
+# Run program on CLI
     python3 generateAST.py <file-path> <file-path> <construct flags> <max levels>
 
 # Example:
-    python3 generateAST.py test/1.py test/2.py 111111 3
+    python3 generateAST.py test/1.py test/2.py 110100 3
 
 # Construct Flag
 
